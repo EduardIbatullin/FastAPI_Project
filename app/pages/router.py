@@ -1,8 +1,11 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, Request, Query
 from fastapi.templating import Jinja2Templates
 
 from app.hotels.router import get_hotels_by_location_and_time
 from app.hotels.dao import HotelDAO
+from app.hotels.rooms.dao import RoomDAO
 from app.users.dependencies import get_optional_user
 
 router = APIRouter(
@@ -24,6 +27,7 @@ async def get_hotels_pages(
         context={"request": request, "hotels": hotels, "user": user},
     )
 
+
 @router.get("")
 async def index_page(
     request: Request,
@@ -36,3 +40,19 @@ async def index_page(
         "hotels": hotels,
     })
 
+
+@router.get("/hotels/{hotel_id}")
+async def get_hotel_with_rooms(
+    hotel_id: int,
+    request: Request,
+    user=Depends(get_optional_user),
+):
+    today = date.today()
+    hotel = await HotelDAO.find_by_id(hotel_id)
+    rooms = await RoomDAO.find_available(hotel_id, today, today)
+    return templates.TemplateResponse("hotel_detail.html", {
+        "request": request,
+        "hotel": hotel,
+        "rooms": rooms,
+        "user": user,
+    })

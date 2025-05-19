@@ -36,7 +36,7 @@ async def add_booking(
         booking,
         user,
     )
-    send_booking_confirmation_email.delay(new_booking, user.email)
+    # send_booking_confirmation_email.delay(new_booking, user.email)
     return new_booking
 
 

@@ -72,3 +72,40 @@ class RoomDAO(BaseDAO):
         async with async_session_maker() as session:
             rooms = await session.execute(get_rooms)
             return rooms.mappings().all()
+        
+    @classmethod
+    async def find_available(cls, hotel_id: int, date_from: date, date_to: date):
+        booked_rooms = (
+            select(Bookings.room_id, func.count(Bookings.room_id).label("rooms_booked"))
+            .where(
+                and_(
+                    Bookings.date_to >= date_from,
+                    Bookings.date_from <= date_to,
+                )
+            )
+            .group_by(Bookings.room_id)
+            .cte("booked_rooms")
+        )
+
+        rooms_left_expr = func.greatest(Rooms.quantity - func.coalesce(booked_rooms.c.rooms_booked, 0), 0)
+
+        query = (
+            select(
+                Rooms.__table__.columns,
+                (Rooms.price * (date_to - date_from).days).label("total_cost"),
+                rooms_left_expr.label("rooms_left"),
+            )
+            .join(booked_rooms, booked_rooms.c.room_id == Rooms.id, isouter=True)
+            .where(
+                and_(
+                    Rooms.hotel_id == hotel_id,
+                    rooms_left_expr > 0,
+                )
+            )
+        )
+
+        async with async_session_maker() as session:
+            result = await session.execute(query)
+            return result.mappings().all()
+
+
