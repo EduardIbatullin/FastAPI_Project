@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Мои бронирования{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Мои бронирования</h2>
+
+{% if bookings %}
+    <div class="row">
+        {% for booking in bookings %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <img src="{{ url_for('static', path='images/' + booking.image_id|string + '.webp') }}" 
+                     class="card-img-top" alt="Фото номера">
+                <div class="card-body">
+                    <h5 class="card-title">{{ booking.name }}</h5>
+                    <p class="card-text">{{ booking.description }}</p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Услуги:</strong> {{ booking.services }}</li>
+                        <li class="list-group-item"><strong>С:</strong> {{ booking.date_from }} <strong>по:</strong> {{ booking.date_to }}</li>
+                        <li class="list-group-item"><strong>Цена за ночь:</strong> {{ booking.price }} ₽</li>
+                        <li class="list-group-item"><strong>Всего:</strong> {{ booking.total_cost }} ₽ ({{ booking.total_days }} ночей)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>У вас пока нет бронирований.</p>
+{% endif %}
+
+{% endblock %}

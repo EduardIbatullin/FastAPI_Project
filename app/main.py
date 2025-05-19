@@ -3,6 +3,7 @@ import time
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
@@ -24,13 +25,15 @@ from app.images.router import router as router_images
 from app.importer.router import router as router_import
 from app.logger import logger
 from app.pages.router import router as router_pages
+from app.pages.auth_router import router as router_auth
+from app.pages.profile_router import router as router_profile
 from app.prometheus.router import router as router_prometheus
 from app.users.router import router as router_users
 
 
 app = FastAPI(
     title="Бронирование Отелей",
-    version="0.1.0",
+    # version="0.1.0",
     root_path="/api",
 )
 
@@ -44,6 +47,8 @@ app.include_router(router_rooms)
 app.include_router(router_bookings)
 
 app.include_router(router_pages)
+app.include_router(router_auth)
+app.include_router(router_profile)
 app.include_router(router_images)
 app.include_router(router_prometheus)
 app.include_router(router_import)
@@ -95,11 +100,11 @@ async def lifespan(app: FastAPI):
 
 
 
-app = VersionedFastAPI(app,
-    version_format='{major}',
-    prefix_format='/api/v{major}',
-    lifespan=lifespan,
-)
+# app = VersionedFastAPI(app,
+#     version_format='{major}',
+#     prefix_format='/api/v{major}',
+#     lifespan=lifespan,
+# )
 
 # app.include_router(router_pages)
 
@@ -133,3 +138,7 @@ async def add_process_time_header(request: Request, call_next):
         "process_time": round(process_time, 4)
     })
     return response
+
+@app.get("/")
+def root_redirect():
+    return RedirectResponse(url="/pages")

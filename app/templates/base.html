@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Набронировал{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+    .hotel-image {
+        height: 400px;
+        object-fit: cover;
+        width: 100%;
+    }
+    </style>
+
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
+        <a class="navbar-brand" href="/pages/hotels">Набронировал</a>
+        <div class="ms-auto">
+            {% if user %}
+                <a href="/pages/profile" class="btn btn-outline-success btn-sm me-3">Профиль</a>
+                <span class="me-2">Привет, {{ user.name }}!</span>
+                <a href="/logout" class="btn btn-outline-secondary btn-sm">Выйти</a>
+            {% else %}
+                <a href="/pages/login" class="btn btn-outline-primary btn-sm me-2">Вход</a>
+                <a href="/pages/register" class="btn btn-primary btn-sm">Регистрация</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-center mt-5 mb-3 text-muted">
+        © 2025 Набронировал
+    </footer>
+</body>
+</html>

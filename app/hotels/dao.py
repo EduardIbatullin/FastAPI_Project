@@ -100,4 +100,11 @@ class HotelDAO(BaseDAO):
         async with async_session_maker() as session:
             hotels_with_rooms = await session.execute(get_hotels_with_rooms)
             return hotels_with_rooms.mappings().all()
+        
+    @classmethod
+    async def get_all(cls):
+        async with async_session_maker() as session:
+            result = await session.execute(select(Hotels))
+            return result.scalars().all()
+
             

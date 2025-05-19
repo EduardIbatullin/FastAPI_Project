@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Бронирование{% endblock %}
+
+{% block content %}
+<h2>Оформление бронирования</h2>
+
+{% if error %}
+<div class="alert alert-danger" role="alert">
+    {{ error }}
+</div>
+{% endif %}
+
+<form method="post" action="/pages/booking" class="w-50 mt-4">
+    <input type="hidden" name="room_id" value="{{ request.query_params.get('room_id') or '' }}">
+
+    <div class="mb-3">
+        <label for="date_from" class="form-label">Дата заезда</label>
+        <input type="date" class="form-control" id="date_from" name="date_from" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="date_to" class="form-label">Дата выезда</label>
+        <input type="date" class="form-control" id="date_to" name="date_to" required>
+    </div>
+
+    <button type="submit" class="btn btn-success">Забронировать</button>
+</form>
+{% endblock %}
