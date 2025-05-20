@@ -4,6 +4,14 @@
 
 {% block content %}
 <h2>Регистрация</h2>
+
+{% if error %}
+<div class="alert alert-danger" role="alert">
+    {{ error }}
+</div>
+{% endif %}
+
+
 <form method="post" action="/pages/auth/register" class="w-50 mt-4">
     <div class="mb-3">
         <label for="email" class="form-label">Email</label>

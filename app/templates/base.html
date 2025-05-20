@@ -17,12 +17,12 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light px-3">
-        <a class="navbar-brand" href="/pages/hotels">Набронировал</a>
+        <a class="navbar-brand" href="/pages">Набронировал</a>
         <div class="ms-auto">
             {% if user %}
                 <a href="/pages/profile" class="btn btn-outline-success btn-sm me-3">Профиль</a>
-                <span class="me-2">Привет, {{ user.name }}!</span>
-                <a href="/logout" class="btn btn-outline-secondary btn-sm">Выйти</a>
+                <span class="me-2">Привет, {{ user.email }}!</span>
+                <a href="/pages/logout" class="btn btn-outline-secondary btn-sm">Выйти</a>
             {% else %}
                 <a href="/pages/login" class="btn btn-outline-primary btn-sm me-2">Вход</a>
                 <a href="/pages/register" class="btn btn-primary btn-sm">Регистрация</a>

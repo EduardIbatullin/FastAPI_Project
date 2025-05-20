@@ -44,6 +44,8 @@ class RoomDAO(BaseDAO):
         WHERE r.hotel_id = 1;
         """
 
+        print(">>> FIND_ALL CALLED")
+
         # Подсчет забронированных номеров
         booked_rooms = (
             select(Bookings.room_id, func.count(Bookings.room_id).label("rooms_booked"))
@@ -61,7 +63,14 @@ class RoomDAO(BaseDAO):
         # Запрос на выборку всех номеров отеля
         get_rooms = (
             select(
-                Rooms.__table__.columns,
+                Rooms.id,
+                Rooms.hotel_id,
+                Rooms.name,
+                Rooms.description,
+                Rooms.services,
+                Rooms.price,
+                Rooms.quantity,
+                Rooms.image_id,
                 (Rooms.price * (date_to - date_from).days).label("total_cost"),  # Стоимость бронирования
                 func.greatest(Rooms.quantity - func.coalesce(booked_rooms.c.rooms_booked, 0), 0).label("rooms_left"),  # Оставшиеся номера
             )
@@ -70,7 +79,10 @@ class RoomDAO(BaseDAO):
         )
 
         async with async_session_maker() as session:
+            print("before execute")
             rooms = await session.execute(get_rooms)
+            print("after execute")
+            print([dict(row) for row in rooms.mappings().all()])
             return rooms.mappings().all()
         
     @classmethod

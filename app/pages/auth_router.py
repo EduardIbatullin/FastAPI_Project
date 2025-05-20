@@ -34,7 +34,7 @@ async def login_process(
         })
 
     access_token = create_access_token({"sub": str(user.id)})
-    response = RedirectResponse(url="/pages/hotels", status_code=status.HTTP_302_FOUND)
+    response = RedirectResponse(url="/pages", status_code=status.HTTP_302_FOUND)
     response.set_cookie("booking_access_token", access_token, httponly=True)
     return response
 

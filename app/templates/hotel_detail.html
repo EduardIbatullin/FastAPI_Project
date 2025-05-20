@@ -9,6 +9,8 @@
 
 <h4 class="mb-4">Номера</h4>
 
+<pre>{{ room | pprint }}</pre>
+
 <div class="row">
     {% for room in rooms|sort(attribute='id') %}
     <div class="col-md-6 mb-4">
@@ -19,7 +21,7 @@
                 <p class="card-text">{{ room.description }}</p>
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item"><strong>Цена:</strong> {{ room.price }} ₽</li>
-                    <li class="list-group-item"><strong>Свободных номеров:</strong> {{ room.rooms_left }}</li>
+                    <li class="list-group-item"><strong>Свободных номеров:</strong> {{ room['rooms_left'] }}</li>
                     <li class="list-group-item"><strong>Услуги:</strong> {{ room.services }}</li>
                 </ul>
                 <a href="/pages/booking?room_id={{ room.id }}" class="btn btn-primary mt-3 w-100">Забронировать</a>

@@ -1,9 +1,14 @@
+import sys
+from datetime import date
+
 from fastapi import APIRouter, Request, Depends, Query
 from fastapi.templating import Jinja2Templates
 
 from app.hotels.dao import HotelDAO
 from app.hotels.rooms.dao import RoomDAO
 from app.users.dependencies import get_optional_user
+
+from app.logger import logger
 
 router = APIRouter(
     prefix="/pages",
@@ -17,10 +22,13 @@ templates = Jinja2Templates(directory="app/templates")
 async def hotel_detail(
     request: Request,
     hotel_id: int,
-    date_from: str = Query(...),
-    date_to: str = Query(...),
+    date_from: date = Query(...),
+    date_to: date = Query(...),
     user=Depends(get_optional_user),
 ):
+    logger.warning(">>> hotel_detail CALLED")
+    sys.stdout.flush()
+
     hotel = await HotelDAO.find_one_or_none(id=hotel_id)
     rooms = await RoomDAO.find_all(hotel_id, date_from, date_to)
 

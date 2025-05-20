@@ -26,6 +26,8 @@ from app.importer.router import router as router_import
 from app.logger import logger
 from app.pages.router import router as router_pages
 from app.pages.auth_router import router as router_auth
+from app.pages.booking_router import router as router_booking
+from app.pages.hotel_detail_router import router as router_hotel_detail
 from app.pages.profile_router import router as router_profile
 from app.prometheus.router import router as router_prometheus
 from app.users.router import router as router_users
@@ -48,6 +50,8 @@ app.include_router(router_bookings)
 
 app.include_router(router_pages)
 app.include_router(router_auth)
+app.include_router(router_booking)
+app.include_router(router_hotel_detail)
 app.include_router(router_profile)
 app.include_router(router_images)
 app.include_router(router_prometheus)
