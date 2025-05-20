@@ -28,16 +28,51 @@ async def get_hotels_pages(
     )
 
 
+from datetime import date
+from typing import Optional
+from fastapi import Request, APIRouter, Query, Depends
+from fastapi.templating import Jinja2Templates
+
+from app.hotels.dao import HotelDAO
+from app.users.dependencies import get_optional_user
+
+router = APIRouter(prefix="/pages", tags=["Фронтенд"])
+templates = Jinja2Templates(directory="app/templates")
+
+
 @router.get("")
 async def index_page(
     request: Request,
+    location: Optional[str] = Query(None),
+    date_from: Optional[str] = Query(None),
+    date_to: Optional[str] = Query(None),
     user=Depends(get_optional_user),
 ):
-    hotels = await HotelDAO.get_all()
+    today = date.today()
+
+    def parse_date(value: Optional[str]) -> date:
+        try:
+            return date.fromisoformat(value) if value else today
+        except ValueError:
+            return today
+
+    parsed_from = parse_date(date_from)
+    parsed_to = parse_date(date_to)
+
+    if not location:
+        hotels = await HotelDAO.find_all("", today, today)
+    elif location and not date_from and not date_to:
+        hotels = await HotelDAO.find_all(location, today, today)
+    else:
+        hotels = await HotelDAO.find_all(location, max(parsed_from, today), parsed_to)
+
     return templates.TemplateResponse("index.html", {
         "request": request,
         "user": user,
         "hotels": hotels,
+        "location": location,
+        "date_from": parsed_from,
+        "date_to": parsed_to,
     })
 
 

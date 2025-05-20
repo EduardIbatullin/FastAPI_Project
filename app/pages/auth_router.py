@@ -48,7 +48,6 @@ async def register_form(request: Request, user=Depends(get_optional_user)):
 async def register_process(
     request: Request,
     email: str = Form(...),
-    name: str = Form(...),
     password: str = Form(...),
 ):
     existing_user = await UsersDAO.find_one_or_none(email=email)
@@ -60,10 +59,11 @@ async def register_process(
         })
 
     hashed_password = get_password_hash(password)
-    await UsersDAO.add(email=email, name=name, hashed_password=hashed_password)
+    await UsersDAO.add(email=email, hashed_password=hashed_password)
 
     response = RedirectResponse(url="/pages/login", status_code=status.HTTP_302_FOUND)
     return response
+
 
 @router.get("/logout")
 async def logout(request: Request):

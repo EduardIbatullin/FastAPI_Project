@@ -5,23 +5,24 @@
 {% block content %}
 <h2 class="mb-4">Поиск отелей</h2>
 
-<form class="row g-3 mb-4">
+<form class="row g-3 mb-4" method="get">
     <div class="col-md-4">
         <label for="location" class="form-label">Локация</label>
-        <input type="text" id="location" name="location" class="form-control">
+        <input type="text" id="location" name="location" class="form-control" value="{{ location or '' }}">
     </div>
     <div class="col-md-3">
         <label for="date_from" class="form-label">Дата заезда</label>
-        <input type="date" id="date_from" name="date_from" class="form-control">
+        <input type="date" id="date_from" name="date_from" class="form-control" value="{{ date_from or '' }}">
     </div>
     <div class="col-md-3">
         <label for="date_to" class="form-label">Дата выезда</label>
-        <input type="date" id="date_to" name="date_to" class="form-control">
+        <input type="date" id="date_to" name="date_to" class="form-control" value="{{ date_to or '' }}">
     </div>
     <div class="col-md-2 d-flex align-items-end">
-        <button type="submit" class="btn btn-primary w-100" disabled>Найти (в разработке)</button>
+        <button type="submit" class="btn btn-primary w-100">Найти</button>
     </div>
 </form>
+
 
 <div class="row">
     {% for hotel in hotels %}
