@@ -6,6 +6,7 @@ from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
 from app.database import async_session_maker
 from app.hotels.rooms.models import Rooms
+from app.logger import logger
 
 
 class RoomDAO(BaseDAO):
@@ -44,7 +45,6 @@ class RoomDAO(BaseDAO):
         WHERE r.hotel_id = 1;
         """
 
-        print(">>> FIND_ALL CALLED")
 
         # Подсчет забронированных номеров
         booked_rooms = (
@@ -79,11 +79,10 @@ class RoomDAO(BaseDAO):
         )
 
         async with async_session_maker() as session:
-            print("before execute")
             rooms = await session.execute(get_rooms)
-            print("after execute")
-            print([dict(row) for row in rooms.mappings().all()])
-            return rooms.mappings().all()
+            rooms_data = rooms.mappings().all()
+            logger.warning(f"📦 Result count: {len(rooms_data)}")
+            return rooms_data
         
     @classmethod
     async def find_available(cls, hotel_id: int, date_from: date, date_to: date):

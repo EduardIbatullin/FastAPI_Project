@@ -76,18 +76,18 @@ async def index_page(
     })
 
 
-@router.get("/hotels/{hotel_id}")
-async def get_hotel_with_rooms(
-    hotel_id: int,
-    request: Request,
-    user=Depends(get_optional_user),
-):
-    today = date.today()
-    hotel = await HotelDAO.find_by_id(hotel_id)
-    rooms = await RoomDAO.find_available(hotel_id, today, today)
-    return templates.TemplateResponse("hotel_detail.html", {
-        "request": request,
-        "hotel": hotel,
-        "rooms": rooms,
-        "user": user,
-    })
+# @router.get("/hotels/{hotel_id}")
+# async def get_hotel_with_rooms(
+#     hotel_id: int,
+#     request: Request,
+#     user=Depends(get_optional_user),
+# ):
+#     today = date.today()
+#     hotel = await HotelDAO.find_by_id(hotel_id)
+#     rooms = await RoomDAO.find_available(hotel_id, today, today)
+#     return templates.TemplateResponse("hotel_detail.html", {
+#         "request": request,
+#         "hotel": hotel,
+#         "rooms": rooms,
+#         "user": user,
+#     })

@@ -1,4 +1,3 @@
-import sys
 from datetime import date
 
 from fastapi import APIRouter, Request, Depends, Query
@@ -26,8 +25,6 @@ async def hotel_detail(
     date_to: date = Query(...),
     user=Depends(get_optional_user),
 ):
-    logger.warning(">>> hotel_detail CALLED")
-    sys.stdout.flush()
 
     hotel = await HotelDAO.find_one_or_none(id=hotel_id)
     rooms = await RoomDAO.find_all(hotel_id, date_from, date_to)

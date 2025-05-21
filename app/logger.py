@@ -1,14 +1,13 @@
 import logging
+import os
 from datetime import datetime
-
 from pythonjsonlogger import jsonlogger
+from dotenv import load_dotenv
 
-from app.config import settings
+load_dotenv()  # <-- ДОСТАЁТ ПЕРЕМЕННЫЕ ИЗ .env
 
 logger = logging.getLogger()
-
 logHandler = logging.StreamHandler()
-
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
     def add_fields(self, log_record, record, message_dict):
@@ -21,11 +20,23 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
         else:
             log_record["level"] = record.levelname
 
-
 formatter = CustomJsonFormatter(
     "%(timestamp)s %(level)s %(message)s %(module)s %(funcName)s"
 )
-
 logHandler.setFormatter(formatter)
 logger.addHandler(logHandler)
-logger.setLevel(settings.LOG_LEVEL)
+
+log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+print("LOG_LEVEL from env:", log_level)
+logger.setLevel(log_level)
+
+
+# uvicorn_logger = logging.getLogger("uvicorn")
+# uvicorn_logger.setLevel(log_level)
+# uvicorn_logger.handlers.clear()
+# uvicorn_logger.addHandler(logHandler)
+
+# uvicorn_access = logging.getLogger("uvicorn.access")
+# uvicorn_access.setLevel(log_level)
+# uvicorn_access.handlers.clear()
+# uvicorn_access.addHandler(logHandler)

@@ -32,6 +32,8 @@ from app.pages.profile_router import router as router_profile
 from app.prometheus.router import router as router_prometheus
 from app.users.router import router as router_users
 
+logger.warning("🔥 FastAPI is starting — logger is active")
+
 
 app = FastAPI(
     title="Бронирование Отелей",
@@ -48,7 +50,7 @@ app.include_router(router_hotels)
 app.include_router(router_rooms)
 app.include_router(router_bookings)
 
-app.include_router(router_pages)
+# app.include_router(router_pages)
 app.include_router(router_auth)
 app.include_router(router_booking)
 app.include_router(router_hotel_detail)
@@ -93,12 +95,12 @@ app.add_middleware(
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # при запуске
-    redis = aioredis.from_url(
-        f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
-        encoding="utf8",
-        decode_responses=True,
-    )
-    FastAPICache.init(RedisBackend(redis), prefix="cache")
+    # redis = aioredis.from_url(
+    #     f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}",
+    #     encoding="utf8",
+    #     decode_responses=True,
+    # )
+    # FastAPICache.init(RedisBackend(redis), prefix="cache")
     yield
     # при выключении
 
