@@ -29,14 +29,3 @@ logger.addHandler(logHandler)
 log_level = os.getenv("LOG_LEVEL", "INFO").upper()
 print("LOG_LEVEL from env:", log_level)
 logger.setLevel(log_level)
-
-
-# uvicorn_logger = logging.getLogger("uvicorn")
-# uvicorn_logger.setLevel(log_level)
-# uvicorn_logger.handlers.clear()
-# uvicorn_logger.addHandler(logHandler)
-
-# uvicorn_access = logging.getLogger("uvicorn.access")
-# uvicorn_access.setLevel(log_level)
-# uvicorn_access.handlers.clear()
-# uvicorn_access.addHandler(logHandler)

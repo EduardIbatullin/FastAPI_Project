@@ -8,8 +8,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi_versioning import VersionedFastAPI
-# from hawk_python_sdk.modules.fastapi import HawkFastapi
-# from hawk_python_sdk import Hawk
 from prometheus_fastapi_instrumentator import Instrumentator
 from redis import asyncio as aioredis
 from sqladmin import Admin
@@ -38,9 +36,6 @@ app = FastAPI(
     # version="0.1.0",
     root_path="/api",
 )
-
-# hawk = Hawk(settings.HAWK_TOKEN)
-# # app.add_middleware(HawkFastapi, hawk=hawk)
 
 
 app.include_router(router_users)
@@ -75,21 +70,6 @@ app.add_middleware(
 )
 
 
-# @app.on_event("startup")  # данный декоратор прогоняет код перед запуском FastAPI
-# def startup():
-#     redis = aioredis.from_url("redis://localhost:6379", encoding="utf-8", decode_responses=True)
-#     FastAPICache.init(RedisBackend(redis), prefix="cache")
-
-
-# @app.on_event("shutdown")  # этот декоратор прогоняет код после завершения программы
-# def shutdown_event():
-#     pass
-
-# Замена устаревших @app.on_event("startup") и @app.on_event("shutdown")
-# в единую функцию lifespan
-
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # при запуске
@@ -101,16 +81,6 @@ async def lifespan(app: FastAPI):
     # FastAPICache.init(RedisBackend(redis), prefix="cache")
     yield
     # при выключении
-
-
-
-# app = VersionedFastAPI(app,
-#     version_format='{major}',
-#     prefix_format='/api/v{major}',
-#     lifespan=lifespan,
-# )
-
-# app.include_router(router_pages)
 
 
 instrumentator = Instrumentator(

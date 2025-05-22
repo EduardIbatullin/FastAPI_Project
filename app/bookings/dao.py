@@ -94,8 +94,6 @@ class BookingDAO(BaseDAO):
                     .group_by(Rooms.quantity, booked_rooms.c.room_id)
                 )
 
-                # print(get_rooms_left.compile(engine, compile_kwargs={"literal_binds": True}))
-
                 rooms_left = await session.execute(get_rooms_left)
                 rooms_left: int = rooms_left.scalar()
 
