@@ -1,6 +1,7 @@
-from datetime import date
+from datetime import date, timedelta
 
 from fastapi import APIRouter, Request, Depends, Query
+from fastapi import HTTPException
 from fastapi.templating import Jinja2Templates
 
 from app.hotels.dao import HotelDAO
@@ -25,6 +26,26 @@ async def hotel_detail(
     date_to: date = Query(...),
     user=Depends(get_optional_user),
 ):
+    today = date.today()
+    tomorrow = today + timedelta(days=1)
+
+    if date_from < today:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Дата заезда не может быть ранее {today.strftime('%d-%m-%Y')}"
+        )
+
+    if date_to < tomorrow:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Дата выезда не может быть ранее {tomorrow.strftime('%d-%m-%Y')}"
+        )
+
+    if date_to <= date_from:
+        raise HTTPException(
+            status_code=400,
+            detail="Дата выезда должна быть позже даты заезда хотя бы на 1 день"
+        )
 
     hotel = await HotelDAO.find_one_or_none(id=hotel_id)
     rooms = await RoomDAO.find_all(hotel_id, date_from, date_to)

@@ -40,6 +40,10 @@ router = APIRouter(prefix="/pages", tags=["Фронтенд"])
 templates = Jinja2Templates(directory="app/templates")
 
 
+from datetime import date, timedelta
+
+from datetime import date, timedelta
+
 @router.get("")
 async def index_page(
     request: Request,
@@ -49,22 +53,32 @@ async def index_page(
     user=Depends(get_optional_user),
 ):
     today = date.today()
+    tomorrow = today + timedelta(days=1)
 
-    def parse_date(value: Optional[str]) -> date:
+    def parse_date(value: Optional[str], default: date) -> date:
         try:
-            return date.fromisoformat(value) if value else today
+            return date.fromisoformat(value) if value else default
         except ValueError:
-            return today
+            return default
 
-    parsed_from = parse_date(date_from)
-    parsed_to = parse_date(date_to)
+    parsed_from = parse_date(date_from, today)
+    parsed_to = parse_date(date_to, tomorrow)
 
-    if not location:
-        hotels = await HotelDAO.find_all("", today, today)
-    elif location and not date_from and not date_to:
-        hotels = await HotelDAO.find_all(location, today, today)
+    # ⛔ Автокоррекция дат
+    if parsed_from < today:
+        parsed_from = today
+    if parsed_to <= today:
+        parsed_to = tomorrow
+
+    # ❌ Проверка логики
+    error = None
+    if parsed_to <= parsed_from:
+        error = "Дата выезда должна быть позже даты заезда хотя бы на 1 день"
+        hotels = []
     else:
-        hotels = await HotelDAO.find_all(location, max(parsed_from, today), parsed_to)
+        hotels = await HotelDAO.find_all(
+            location or "", parsed_from, parsed_to
+        )
 
     return templates.TemplateResponse("index.html", {
         "request": request,
@@ -73,6 +87,7 @@ async def index_page(
         "location": location,
         "date_from": parsed_from,
         "date_to": parsed_to,
+        "error": error,
     })
 
 

@@ -32,8 +32,6 @@ from app.pages.profile_router import router as router_profile
 from app.prometheus.router import router as router_prometheus
 from app.users.router import router as router_users
 
-logger.warning("🔥 FastAPI is starting — logger is active")
-
 
 app = FastAPI(
     title="Бронирование Отелей",
@@ -50,7 +48,7 @@ app.include_router(router_hotels)
 app.include_router(router_rooms)
 app.include_router(router_bookings)
 
-# app.include_router(router_pages)
+app.include_router(router_pages)
 app.include_router(router_auth)
 app.include_router(router_booking)
 app.include_router(router_hotel_detail)

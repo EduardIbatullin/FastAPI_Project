@@ -10,9 +10,8 @@
         {% for booking in bookings %}
         <div class="col-md-6 mb-4">
             <div class="card h-100">
-                <img src="{{ url_for('static', path='images/' + booking.image_id|string + '.webp') }}" 
-                     class="card-img-top" alt="Фото номера">
                 <div class="card-body">
+                    <p class="card-text">  Здесь вы видите красивую картинку номера</p>
                     <h5 class="card-title">{{ booking.name }}</h5>
                     <p class="card-text">{{ booking.description }}</p>
                     <ul class="list-group list-group-flush">
@@ -21,6 +20,10 @@
                         <li class="list-group-item"><strong>Цена за ночь:</strong> {{ booking.price }} ₽</li>
                         <li class="list-group-item"><strong>Всего:</strong> {{ booking.total_cost }} ₽ ({{ booking.total_days }} ночей)</li>
                     </ul>
+                    <form method="post" action="/pages/bookings/{{ booking.id }}/delete" style="display:inline">
+                        <button type="submit" onclick="return confirm('Удалить бронирование?')">Удалить</button>
+                    </form>
+
                 </div>
             </div>
         </div>

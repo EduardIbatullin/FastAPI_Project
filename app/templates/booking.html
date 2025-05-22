@@ -12,7 +12,7 @@
 {% endif %}
 
 <form method="post" action="/pages/booking" class="w-50 mt-4">
-    <input type="hidden" name="room_id" value="{{ request.query_params.get('room_id') or '' }}">
+    <input type="hidden" name="room_id" value="{{ room_id }}">
 
     <div class="mb-3">
         <label for="date_from" class="form-label">Дата заезда</label>
