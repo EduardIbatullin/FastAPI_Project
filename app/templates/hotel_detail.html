@@ -23,7 +23,17 @@
                     <li class="list-group-item"><strong>Свободных номеров:</strong> {{ room['rooms_left'] }}</li>
                     <li class="list-group-item"><strong>Услуги:</strong> {{ room.services }}</li>
                 </ul>
+                
+                {% if user %}
                 <a href="/pages/booking?room_id={{ room.id }}&date_from={{ date_from }}&date_to={{ date_to }}" class="btn btn-primary mt-3 w-100">Забронировать</a>
+                {% else %}
+                <div class="mt-3 text-center">
+                <p class="text-muted">
+                    Для бронирования <a href="/pages/login">войдите</a> или <a href="/pages/register">зарегистрируйтесь</a>
+                </p>
+                </div>
+                {% endif %}
+                
             </div>
         </div>
     </div>

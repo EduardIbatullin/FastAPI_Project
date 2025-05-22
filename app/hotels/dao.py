@@ -94,6 +94,7 @@ class HotelDAO(BaseDAO):
                     Hotels.location.ilike(f"%{location}%"),  # Используем `ILIKE` для нечувствительного поиска
                 )
             )
+            .order_by(Hotels.id)
         )
 
         # Выполнение запроса
