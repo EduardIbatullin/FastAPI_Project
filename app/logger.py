@@ -27,5 +27,4 @@ logHandler.setFormatter(formatter)
 logger.addHandler(logHandler)
 
 log_level = os.getenv("LOG_LEVEL", "INFO").upper()
-print("LOG_LEVEL from env:", log_level)
 logger.setLevel(log_level)
