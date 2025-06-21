@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta
 from typing import List
 
 from fastapi import Query
+from fastapi_cache.decorator import cache
 
 from app.hotels.rooms.dao import RoomDAO
 from app.hotels.rooms.schemas import SRoomInfo
@@ -9,6 +10,7 @@ from app.hotels.router import router
 
 
 @router.get("/{hotel_id}/rooms")
+@cache(expire=3)
 async def get_rooms_by_date(
     hotel_id: int, 
     date_from: date = Query(..., description=f"Например, {datetime.now().date()}"),

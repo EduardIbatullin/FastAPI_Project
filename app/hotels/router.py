@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 @router.get("/{location}")
-@cache(expire=30)
+@cache(expire=60)
 async def get_hotels_by_location_and_time(
     location: str,
     date_from: date = Query(..., description=f"Например, {datetime.now().date()}"),
@@ -32,6 +32,7 @@ async def get_hotels_by_location_and_time(
 
 
 @router.get("/id/{hotel_id}")
+@cache(expire=60)
 async def get_hotel_by_id(
     hotel_id: int,
 ) -> Optional[SHotel]:
