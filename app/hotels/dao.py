@@ -1,25 +1,39 @@
+"""
+DAO для работы с отелями:
+- Поиск отелей с учётом занятости комнат на выбранные даты и фильтрации по локации.
+- Получение всех отелей без фильтрации по датам/номерам.
+"""
+
 from datetime import date
 
 from sqlalchemy import and_, func, select
 
 from app.bookings.models import Bookings
 from app.dao.base import BaseDAO
-from app.database import async_session_maker, engine
+from app.database import async_session_maker
 from app.hotels.models import Hotels
 from app.hotels.rooms.models import Rooms
 
 
 class HotelDAO(BaseDAO):
+    """
+    Data Access Object для таблицы Hotels.
+    """
+
     model = Hotels
 
     @classmethod
-    async def find_all(cls, location: str, date_from: date, date_to: date):
+    async def find_all(cls, location: str, date_from: date, date_to: date) -> list[dict]:
+        """
+        Получает список всех отелей, расположенных в определенной локации со свободными номерами.
 
-        """
-        Получает список **всех отелей**, расположенных в определенной локации со свободными номерами.
-        """
+        :param location: Строка для поиска по местоположению (LIKE/ILIKE)
+        :param date_from: Дата заезда
+        :param date_to: Дата выезда
+        :return: Список отелей (dict), у каждого указано rooms_left
 
-        """
+        Ниже — реальный SQL из бизнес-логики (для читаемости и ревью):
+
         WITH booked_rooms AS (
             SELECT 
                 b.room_id, 
@@ -52,7 +66,6 @@ class HotelDAO(BaseDAO):
             bh.rooms_left > 0
             AND h.location ILIKE '%алтай%'; -- Поддержка частичного поиска
         """
-
         # Определяем количество занятых номеров
         booked_rooms = (
             select(Bookings.room_id, func.count(Bookings.room_id).label("rooms_booked"))
@@ -101,11 +114,14 @@ class HotelDAO(BaseDAO):
         async with async_session_maker() as session:
             hotels_with_rooms = await session.execute(get_hotels_with_rooms)
             return hotels_with_rooms.mappings().all()
-        
+
     @classmethod
-    async def get_all(cls):
+    async def get_all(cls) -> list[Hotels]:
+        """
+        Возвращает список всех отелей (без фильтрации и учёта занятости).
+
+        :return: Список ORM-объектов Hotels
+        """
         async with async_session_maker() as session:
             result = await session.execute(select(Hotels))
             return result.scalars().all()
-
-            

@@ -1,3 +1,9 @@
+"""
+DAO для операций с номерами (rooms) отеля.
+- Получение всех комнат по отелю с расчётом свободных мест и стоимости на период.
+- Получение только доступных комнат на даты.
+"""
+
 from datetime import date
 
 from sqlalchemy import and_, func, select
@@ -10,15 +16,27 @@ from app.logger import logger
 
 
 class RoomDAO(BaseDAO):
+    """
+    DAO для работы с комнатами в отелях.
+
+    Методы:
+        - find_all: получить все комнаты, даже занятые, с расчётом стоимости и свободных мест.
+        - find_available: получить только свободные комнаты на даты.
+    """
     model = Rooms
 
     @classmethod
-    async def find_all(cls, hotel_id: int, date_from: date, date_to: date):
+    async def find_all(cls, hotel_id: int, date_from: date, date_to: date) -> list[dict]:
         """
-        Получает список **всех номеров** отеля, включая занятые, с расчетом стоимости.
-        """
+        Получает список **всех номеров** отеля (включая занятые) с расчетом стоимости и оставшихся мест.
 
-        """
+        :param hotel_id: ID отеля
+        :param date_from: дата заезда
+        :param date_to: дата выезда
+        :return: список dict с полями комнаты, total_cost, rooms_left
+
+        Ниже сырой SQL-запрос, как в оригинале:
+
         WITH booked_rooms AS (
             SELECT 
                 room_id, 
@@ -44,7 +62,6 @@ class RoomDAO(BaseDAO):
         LEFT JOIN booked_rooms br ON br.room_id = r.id
         WHERE r.hotel_id = 1;
         """
-
 
         # Подсчет забронированных номеров
         booked_rooms = (
@@ -74,18 +91,29 @@ class RoomDAO(BaseDAO):
                 (Rooms.price * (date_to - date_from).days).label("total_cost"),  # Стоимость бронирования
                 func.greatest(Rooms.quantity - func.coalesce(booked_rooms.c.rooms_booked, 0), 0).label("rooms_left"),  # Оставшиеся номера
             )
-            .join(booked_rooms, booked_rooms.c.room_id == Rooms.id, isouter=True)  # LEFT JOIN, чтобы не терять номера без бронирований
-            .where(Rooms.hotel_id == hotel_id)  # Фильтр по конкретному отелю
+            .join(booked_rooms, booked_rooms.c.room_id == Rooms.id, isouter=True)  # LEFT JOIN
+            .where(Rooms.hotel_id == hotel_id)  # Только для нужного отеля
         )
 
         async with async_session_maker() as session:
             rooms = await session.execute(get_rooms)
             rooms_data = rooms.mappings().all()
-            logger.warning(f"📦 Result count: {len(rooms_data)}")
+            logger.info(f"📦 Result count: {len(rooms_data)}")
             return rooms_data
-        
+
     @classmethod
-    async def find_available(cls, hotel_id: int, date_from: date, date_to: date):
+    async def find_available(cls, hotel_id: int, date_from: date, date_to: date) -> list[dict]:
+        """
+        Получает только свободные комнаты на заданный период.
+
+        :param hotel_id: ID отеля
+        :param date_from: дата заезда
+        :param date_to: дата выезда
+        :return: список dict комнат с total_cost, rooms_left
+
+        Логика аналогична find_all, но фильтрует только те, где rooms_left > 0.
+        """
+
         booked_rooms = (
             select(Bookings.room_id, func.count(Bookings.room_id).label("rooms_booked"))
             .where(
@@ -118,5 +146,3 @@ class RoomDAO(BaseDAO):
         async with async_session_maker() as session:
             result = await session.execute(query)
             return result.mappings().all()
-
-
