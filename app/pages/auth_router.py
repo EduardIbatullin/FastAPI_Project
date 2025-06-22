@@ -1,3 +1,8 @@
+"""
+Роутер для HTML-аутентификации пользователей (логин, регистрация, выход).
+Использует шаблоны Jinja2 и cookie для хранения access_token.
+"""
+
 from fastapi import APIRouter, Request, Form, status, Depends
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -16,6 +21,13 @@ templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/login")
 async def login_form(request: Request, user=Depends(get_optional_user)):
+    """
+    GET /login — HTML-форма входа пользователя.
+    Если пользователь уже залогинен, user подставляется в шаблон.
+    :param request: FastAPI Request
+    :param user: Текущий пользователь (если залогинен)
+    :return: login.html
+    """
     return templates.TemplateResponse("login.html", {"request": request, "user": user})
 
 
@@ -25,6 +37,15 @@ async def login_process(
     email: str = Form(...),
     password: str = Form(...),
 ):
+    """
+    POST /auth/login — обработка логина пользователя.
+    При успехе: устанавливает cookie booking_access_token и редиректит на /pages.
+    При ошибке: возвращает login.html с ошибкой.
+    :param request: FastAPI Request
+    :param email: email из формы
+    :param password: пароль из формы
+    :return: RedirectResponse или login.html
+    """
     user = await authenticate_user(email=email, password=password)
     if not user:
         return templates.TemplateResponse("login.html", {
@@ -35,12 +56,19 @@ async def login_process(
 
     access_token = create_access_token({"sub": str(user.id)})
     response = RedirectResponse(url="/pages", status_code=status.HTTP_302_FOUND)
+    # Cookie httponly: true для защиты от XSS
     response.set_cookie("booking_access_token", access_token, httponly=True)
     return response
 
 
 @router.get("/register")
 async def register_form(request: Request, user=Depends(get_optional_user)):
+    """
+    GET /register — HTML-форма регистрации пользователя.
+    :param request: FastAPI Request
+    :param user: Текущий пользователь (если есть)
+    :return: register.html
+    """
     return templates.TemplateResponse("register.html", {"request": request, "user": user})
 
 
@@ -50,6 +78,15 @@ async def register_process(
     email: str = Form(...),
     password: str = Form(...),
 ):
+    """
+    POST /auth/register — обработка формы регистрации.
+    При успехе: создаёт пользователя и редиректит на /pages/login.
+    Если email уже занят: возвращает форму с ошибкой.
+    :param request: FastAPI Request
+    :param email: email из формы
+    :param password: пароль из формы
+    :return: RedirectResponse или register.html с ошибкой
+    """
     existing_user = await UsersDAO.find_one_or_none(email=email)
     if existing_user:
         return templates.TemplateResponse("register.html", {
@@ -67,6 +104,12 @@ async def register_process(
 
 @router.get("/logout")
 async def logout(request: Request):
+    """
+    GET /logout — выход пользователя.
+    Очищает cookie booking_access_token и редиректит на /pages/login.
+    :param request: FastAPI Request
+    :return: RedirectResponse
+    """
     response = RedirectResponse(url="/pages/login", status_code=status.HTTP_302_FOUND)
     response.delete_cookie("booking_access_token")
     return response
